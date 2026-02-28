@@ -28,6 +28,9 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "es5-ext"
-    ]
+    ],
+    "overrides": {
+      "tar": ">=7.5.8"
+    }
   }
 }
