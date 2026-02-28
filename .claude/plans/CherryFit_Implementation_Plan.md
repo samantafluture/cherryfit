@@ -133,7 +133,7 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
   │   ├── schema.ts         # All table definitions
   │   └── migrations/
   ├── services/
-  │   ├── claude.ts          # Anthropic API wrapper
+  │   ├── gemini.ts          # Google Gemini API wrapper
   │   ├── fitbit.ts          # Fitbit API client
   │   └── openfoodfacts.ts   # Barcode lookup
   └── utils/
@@ -432,14 +432,14 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
 **Backend side:**
 - `food.scanLabel` tRPC mutation:
   - Accepts base64 image
-  - Sends to Claude API (Sonnet) with a structured prompt:
+  - Sends to Gemini API (gemini-2.5-flash) with a structured prompt:
     ```
     Extract all nutrition information from this food label image.
     Return JSON with: food_name, serving_size, calories, protein_g,
     carbs_g, fat_g, fiber_g, sugar_g, sodium_mg.
     If a value is not visible, return null.
     ```
-  - Parses Claude's response, validates with Zod
+  - Parses Gemini's response, validates with Zod
   - Returns structured nutrition data
 - Error handling: blurry image, non-label image, partial extraction
 - Rate limiting: max 30 scans per hour
@@ -450,7 +450,7 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
 
 **Acceptance criteria:**
 - Camera opens, captures photo, sends to backend
-- Claude API returns structured nutrition data
+- Gemini API returns structured nutrition data
 - Pre-filled form shows extracted values
 - User can adjust values before saving
 - Saved entry appears on dashboard with source: "label_scan"
@@ -458,8 +458,8 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
 - Graceful error states for failed extraction
 
 **🍒 SAM ACTION:**
-> 1. Ensure your Anthropic API key has access to Claude Sonnet with vision
-> 2. Add `ANTHROPIC_API_KEY` to `.env` (local development) and later to production
+> 1. Ensure your Google Gemini API key has access to gemini-2.5-flash with vision
+> 2. Add `GEMINI_API_KEY` and `GEMINI_MODEL` to `.env` (local development) and later to production
 
 ---
 
@@ -600,7 +600,7 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
 > 2. Merge to `main`
 > 3. **Deploy backend:**
 >    - SSH into Hostinger VPS
->    - Clone repo, set up `.env.production` with `DATABASE_URL`, `ANTHROPIC_API_KEY`, `JWT_SECRET`
+>    - Clone repo, set up `.env.production` with `DATABASE_URL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `JWT_SECRET`
 >    - `docker compose up -d`
 >    - `pnpm db:migrate`
 >    - Verify: `curl https://api.cherryfit.dev/health`
@@ -983,7 +983,7 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
 
 **Backend:**
 - `food.analyzePhoto` tRPC mutation:
-  - Sends image to Claude Vision API with prompt:
+  - Sends image to Gemini Vision API with prompt:
     ```
     Identify all food items in this photo and estimate nutritional values.
     For each item, provide: name, estimated portion size,
@@ -1114,7 +1114,7 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
 **Backend:**
 - `blood.uploadTest` tRPC mutation:
   - Accept PDF upload (multipart or base64)
-  - Send to Claude API with document processing:
+  - Send to Gemini API with document processing:
     ```
     Extract all lab test values from this blood test PDF.
     For each value, return: marker_name, value, unit, reference_range_low,
@@ -1179,7 +1179,7 @@ Estimates assume heavy use of AI coding tools (Claude Code, etc.) which signific
     - Workouts: frequency, volume trends, PRs
     - Health metrics: step trends, sleep patterns, HR changes
     - Blood tests: latest values (if available)
-  - Sends aggregated data to Claude API with prompt:
+  - Sends aggregated data to Gemini API with prompt:
     ```
     You are a health insights assistant. Based on the following health data
     for the past week, provide 3-5 actionable insights. Categories:
@@ -1400,7 +1400,7 @@ All manual steps Sam needs to take, in chronological order:
 | Task 0.6 | EAS login and build setup | `eas login`, `eas build:configure` |
 | Phase 1 end | Deploy backend to VPS | SSH, docker compose, migrations |
 | Phase 1 end | First APK build and device install | `eas build --profile preview` |
-| Task 1.5 | Verify Anthropic API key has vision access | Check API dashboard |
+| Task 1.5 | Verify Gemini API key has vision access | Check API dashboard |
 | Task 2.3 | Register Fitbit app at dev.fitbit.com | Get Client ID + Secret |
 | Task 2.3 | Complete Fitbit OAuth from the app | Authorize CherryFit |
 | Phase 2 end | Update backend, build new APK | Deploy + test Fitbit sync |

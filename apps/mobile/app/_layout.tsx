@@ -11,6 +11,7 @@ import {
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { Providers } from '../services/providers';
+import { useInitializeApp } from '../hooks/useInitializeApp';
 
 export default function RootLayout(): React.JSX.Element | null {
   const [fontsLoaded] = useFonts({
@@ -20,13 +21,15 @@ export default function RootLayout(): React.JSX.Element | null {
     Inter_700Bold,
   });
 
+  const { isReady: dbReady } = useInitializeApp();
+
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && dbReady) {
       setAppReady(true);
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, dbReady]);
 
   if (!appReady) {
     return (

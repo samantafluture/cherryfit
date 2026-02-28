@@ -51,7 +51,7 @@ cherryfit/
 │           │   ├── schema.ts  # All table definitions
 │           │   └── migrations/
 │           ├── services/
-│           │   ├── claude.ts      # Anthropic API wrapper
+│           │   ├── gemini.ts      # Google Gemini API wrapper
 │           │   ├── fitbit.ts      # Fitbit API client
 │           │   └── openfoodfacts.ts
 │           └── utils/
@@ -91,7 +91,7 @@ cherryfit/
 - **API:** tRPC (type-safe, connected to mobile via React Query)
 - **Database:** PostgreSQL 16
 - **ORM:** Drizzle ORM
-- **AI:** Anthropic Claude API (claude-sonnet-4-5-20250929) for vision + text
+- **AI:** Google Gemini API (gemini-2.5-flash) for vision + text
 - **External APIs:** Open Food Facts (barcode), Fitbit Web API (write-back), Nutritionix (restaurants)
 
 ### Shared (packages/shared)
@@ -279,18 +279,18 @@ Single default user for v1 — create a seed user on first migration.
 
 See the Technical Design Document (Section 6) for full column specifications.
 
-## Claude API Usage Patterns
+## Gemini API Usage Patterns
 
 ### Nutrition Label OCR
 ```typescript
-const response = await anthropic.messages.create({
-  model: 'claude-sonnet-4-5-20250929',
-  max_tokens: 1024,
-  messages: [{
-    role: 'user',
-    content: [
-      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Image } },
-      { type: 'text', text: `Extract all nutrition information from this food label.
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey });
+const response = await ai.models.generateContent({
+  model: 'gemini-2.5-flash',
+  contents: [
+    { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
+    { text: `Extract all nutrition information from this food label.
 Return ONLY valid JSON (no markdown, no backticks):
 {
   "food_name": "string",
@@ -304,8 +304,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   "sodium_mg": number | null
 }
 If a value is not visible on the label, use null.` }
-    ]
-  }]
+  ],
 });
 ```
 
@@ -331,7 +330,7 @@ If a value is not visible on the label, use null.` }
 // Categories: nutrition, recovery, trend_alert, goal_progress, blood_test
 ```
 
-**Important:** Always strip PII before sending to Claude API. No names, emails, or account IDs.
+**Important:** Always strip PII before sending to Gemini API. No names, emails, or account IDs.
 
 ## SAM Action Required — Reminder Format
 

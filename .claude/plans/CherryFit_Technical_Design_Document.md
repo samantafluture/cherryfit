@@ -66,7 +66,7 @@ CherryFit follows a client-server architecture with the mobile app communicating
 |-------|-----------|----------------|
 | Mobile Client | React Native (Expo), TypeScript | UI, camera capture, Health Connect integration, offline caching |
 | API Layer | Fastify + tRPC | Type-safe API, authentication, request validation, rate limiting |
-| AI Services | Claude API (Anthropic) | Food photo analysis, nutrition label OCR, blood test parsing, health insights |
+| AI Services | Gemini API (Google) | Food photo analysis, nutrition label OCR, blood test parsing, health insights |
 | Wearable Integration | Google Health Connect SDK | Read: steps, sleep, heart rate, exercises from Fitbit/Google Watch |
 | Wearable Sync | Fitbit Web API | Write: food logs back to Fitbit so data appears on watch |
 | Database | PostgreSQL + Drizzle ORM | All user data, food logs, workouts, blood tests, AI analysis cache |
@@ -79,9 +79,9 @@ CherryFit follows a client-server architecture with the mobile app communicating
 When a user logs food, the flow varies by method but converges on the same data model:
 
 1. User selects logging method (label scan, barcode, photo, search, or manual).
-2. **Label scan:** Camera captures nutrition label → image sent to backend → Claude Vision API extracts structured macro data → user confirms/adjusts → saved.
+2. **Label scan:** Camera captures nutrition label → image sent to backend → Gemini Vision API extracts structured macro data → user confirms/adjusts → saved.
 3. **Barcode scan:** Barcode decoded on-device → lookup against Open Food Facts API (or local cache) → user confirms → saved.
-4. **AI food photo:** Camera captures meal → image sent to backend → Claude Vision estimates food items and portions → user confirms/adjusts → saved.
+4. **AI food photo:** Camera captures meal → image sent to backend → Gemini Vision estimates food items and portions → user confirms/adjusts → saved.
 5. **Restaurant search:** User searches by restaurant name → database lookup (Nutritionix or similar) → user selects item → saved.
 6. **On save:** Data written to local DB → synced to backend PostgreSQL → Fitbit API write-back for food log.
 
@@ -91,7 +91,7 @@ Health Connect acts as the primary bridge between wearable data and CherryFit. T
 
 #### Blood Test Flow
 
-The user uploads a PDF of their blood test results. The backend sends the PDF to Claude's document understanding API, which extracts structured lab values (e.g., cholesterol, iron, vitamin D, glucose). These are stored with timestamps for trend tracking. The AI insights engine periodically correlates lab values with nutrition and exercise data to surface actionable observations.
+The user uploads a PDF of their blood test results. The backend sends the PDF to Gemini's document understanding API, which extracts structured lab values (e.g., cholesterol, iron, vitamin D, glucose). These are stored with timestamps for trend tracking. The AI insights engine periodically correlates lab values with nutrition and exercise data to surface actionable observations.
 
 ---
 
@@ -106,7 +106,7 @@ Food logging is the primary feature and the reason CherryFit exists. Every desig
 This is the single most impactful feature for daily use. The user photographs a nutrition label (from CookUnit meals, packaged foods, etc.) and the app extracts all macro data automatically.
 
 - **Input:** Camera photo of a nutrition label (or photo from gallery).
-- **Processing:** Image sent to backend → Claude Vision API with a structured extraction prompt → returns JSON with: calories, protein, carbs, fat, fiber, sugar, sodium, serving size.
+- **Processing:** Image sent to backend → Gemini Vision API with a structured extraction prompt → returns JSON with: calories, protein, carbs, fat, fiber, sugar, sodium, serving size.
 - **Output:** Pre-filled food entry for user confirmation. User can adjust serving count (e.g., "I ate 1.5 servings") and all values recalculate.
 - **Target speed:** Under 3 seconds from photo to pre-filled entry.
 - **Caching:** Once a label is scanned, the food is saved to the user's personal food database for instant re-logging.
@@ -123,7 +123,7 @@ For packaged grocery items, barcode scanning provides the fastest path to accura
 
 For home-cooked meals, restaurant food without packaging, or any situation where there's no label or barcode.
 
-- **Processing:** Photo sent to Claude Vision API with a prompt to identify food items, estimate portions, and calculate approximate macros.
+- **Processing:** Photo sent to Gemini Vision API with a prompt to identify food items, estimate portions, and calculate approximate macros.
 - **Accuracy expectation:** This is inherently estimative. The UI should clearly indicate these are estimates and allow easy adjustment.
 - **Learning:** When users correct estimates, store corrections to improve suggestions for similar foods over time.
 
@@ -198,7 +198,7 @@ Beyond templates, users can log exercises freestyle — useful for days when the
 
 #### 4.4.1 PDF Upload and Parsing
 
-Users upload their blood test result PDFs (typically from annual checkups). The backend processes them through Claude's document understanding capabilities to extract structured lab data.
+Users upload their blood test result PDFs (typically from annual checkups). The backend processes them through Gemini's document understanding capabilities to extract structured lab data.
 
 Extracted data includes but is not limited to:
 
@@ -234,7 +234,7 @@ A dedicated section in the app that provides AI-generated observations and sugge
 
 #### Privacy and AI Processing
 
-All AI processing happens through the user's own backend. Data sent to the Claude API includes only the health metrics needed for analysis — no personally identifiable information beyond what's necessary. The backend strips names and identifying details before making API calls. Users can review exactly what data is sent in an "AI transparency" settings page.
+All AI processing happens through the user's own backend. Data sent to the Gemini API includes only the health metrics needed for analysis — no personally identifiable information beyond what's necessary. The backend strips names and identifying details before making API calls. Users can review exactly what data is sent in an "AI transparency" settings page.
 
 ---
 
@@ -262,7 +262,7 @@ All AI processing happens through the user's own backend. Data sent to the Claud
 | API Layer | tRPC | End-to-end type safety between mobile app and backend |
 | Database | PostgreSQL | Robust, handles complex queries for trend analysis and correlations |
 | ORM | Drizzle ORM | Type-safe, lightweight, familiar from FinCherry project |
-| AI Integration | Anthropic Claude API (Sonnet) | Vision capabilities for food/label recognition; document parsing for blood tests; text analysis for insights |
+| AI Integration | Google Gemini API (gemini-2.5-flash) | Vision capabilities for food/label recognition; document parsing for blood tests; text analysis for insights |
 | Food Database | Open Food Facts API + local cache | Free, open-source, extensive international food data for barcode lookups |
 | Authentication | Simple token-based (v1) | Single-user MVP; upgrade to OAuth/JWT for multi-user |
 | Deployment | Docker Compose on Hostinger VPS | Consistent with planned infrastructure; migrate to cloud if scaling |
@@ -273,7 +273,7 @@ All AI processing happens through the user's own backend. Data sent to the Claud
 |-------------|-----------|------|-----|
 | Google Health Connect | Read | Steps, sleep, heart rate, exercises | Health Connect SDK (Android) |
 | Fitbit Web API | Write | Food logs (calories, macros) | OAuth 2.0 + REST API |
-| Anthropic Claude | Request/Response | Food photos, nutrition labels, blood test PDFs, insight prompts | Claude API (claude-sonnet-4-5) |
+| Google Gemini | Request/Response | Food photos, nutrition labels, blood test PDFs, insight prompts | Gemini API (gemini-2.5-flash) |
 | Open Food Facts | Read | Barcode → nutrition data | REST API (free, no auth) |
 | Nutritionix (or alt) | Read | Restaurant food nutrition data | REST API (freemium) |
 
@@ -520,7 +520,7 @@ The home screen uses the card-based dark layout with color accents:
 
 - **In transit:** All API communication over HTTPS. TLS 1.3 enforced on VPS.
 - **At rest:** PostgreSQL encryption for sensitive data. Blood test PDFs stored encrypted.
-- **AI privacy:** PII stripped before sending data to Claude API. No names, email, or account IDs included in AI prompts. An AI transparency page shows users exactly what data is sent.
+- **AI privacy:** PII stripped before sending data to Gemini API. No names, email, or account IDs included in AI prompts. An AI transparency page shows users exactly what data is sent.
 - **Authentication:** Simple token-based auth for v1 (single user). Upgrade path to OAuth 2.0/JWT for multi-user.
 
 ### 9.2 Fitbit API Security
@@ -622,7 +622,7 @@ Each phase has a deployment checkpoint. At the end of each phase, the agent will
 > 1. **Backend deployment:**
 >    - SSH into Hostinger VPS
 >    - Clone repo: `git clone <repo-url>`
->    - Copy `.env.production` with: `DATABASE_URL`, `ANTHROPIC_API_KEY`, `JWT_SECRET`
+>    - Copy `.env.production` with: `DATABASE_URL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `JWT_SECRET`
 >    - Run `docker compose up -d` (starts Fastify + PostgreSQL)
 >    - Run `pnpm db:migrate` to apply Drizzle migrations
 >    - Verify API health: `curl https://api.cherryfit.dev/health`
@@ -661,7 +661,7 @@ Each phase has a deployment checkpoint. At the end of each phase, the agent will
 > **🍒 SAM ACTION REQUIRED — Phase 3 Deployment**
 >
 > 1. Update backend: `git pull && docker compose up -d --build && pnpm db:migrate`
-> 2. No new external API keys needed (still using Claude API)
+> 2. No new external API keys needed (still using Gemini API)
 > 3. Build APK: `eas build --platform android --profile preview`
 > 4. Test: create a workout template, log a session, verify progressive overload chart
 > 5. Test: take food photo → verify AI estimation → confirm/adjust flow
@@ -672,7 +672,7 @@ Each phase has a deployment checkpoint. At the end of each phase, the agent will
 > **🍒 SAM ACTION REQUIRED — Phase 4 Deployment**
 >
 > 1. Update backend: `git pull && docker compose up -d --build && pnpm db:migrate`
-> 2. Verify Claude API has document/PDF processing enabled on your plan
+> 2. Verify Gemini API has document/PDF processing enabled on your plan
 > 3. Build APK: `eas build --platform android --profile production`
 > 4. Test: upload a blood test PDF → verify extraction → check trend charts
 > 5. Test: trigger AI insight generation → review output quality
@@ -907,7 +907,7 @@ The project is divided into four phases, with each phase delivering a usable inc
 |------|----------|------------|
 | Fitbit API access restricted or deprecated by Google | High | Health Connect as primary data source; Fitbit write-back as best-effort feature that degrades gracefully |
 | AI food photo recognition accuracy is poor for complex meals | Medium | Set user expectations clearly (show as estimates); prioritize label OCR and barcode as primary methods; allow easy manual correction |
-| Claude API costs for frequent food photo/label analysis | Medium | Cache aggressively; batch requests; use label OCR only for first scan of each food (then cache); monitor API usage |
+| Gemini API costs for frequent food photo/label analysis | Medium | Cache aggressively; batch requests; use label OCR only for first scan of each food (then cache); monitor API usage |
 | Health data sensitivity and privacy concerns | Medium | Strip PII before AI calls; encrypt at rest; AI transparency page; self-hosted backend gives full data control |
 | React Native Health Connect bridge maturity | Low–Med | Test early in Phase 1; have fallback to direct Fitbit API read if bridge is unreliable |
 | Scope creep from feature richness | Medium | Strict phase discipline; Phase 1 must be daily-usable before moving to Phase 2; resist adding features outside current phase |
