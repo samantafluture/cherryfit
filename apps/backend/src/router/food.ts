@@ -1,9 +1,10 @@
 import { router, publicProcedure } from './trpc';
 import { z } from 'zod';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import { createFoodLogSchema } from '@cherryfit/shared';
 import { foodLogs } from '../db/schema';
 import { GeminiService } from '../services/gemini';
+import { OpenFoodFactsService } from '../services/openfoodfacts';
 
 const syncFoodLogSchema = z.object({
   id: z.string().uuid(),
@@ -144,5 +145,51 @@ export const foodRouter = router({
       const model = process.env['GEMINI_MODEL'] ?? 'gemini-2.5-flash';
       const gemini = new GeminiService(apiKey, model);
       return gemini.scanNutritionLabel(input.image, input.mediaType);
+    }),
+
+  lookupBarcode: publicProcedure
+    .input(z.object({ barcode: z.string().min(8).max(14) }))
+    .query(async ({ input }) => {
+      const off = new OpenFoodFactsService();
+      return off.lookupBarcode(input.barcode);
+    }),
+
+  getDailyTrends: publicProcedure
+    .input(
+      z.object({
+        startDate: z.string().date(),
+        endDate: z.string().date(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const start = `${input.startDate}T00:00:00.000Z`;
+      const end = `${input.endDate}T23:59:59.999Z`;
+
+      const rows = await ctx.db
+        .select({
+          date: sql<string>`DATE(${foodLogs.loggedAt})`.as('date'),
+          calories: sql<string>`COALESCE(SUM(CAST(${foodLogs.calories} AS NUMERIC) * CAST(${foodLogs.servings} AS NUMERIC)), 0)`.as('calories'),
+          protein_g: sql<string>`COALESCE(SUM(CAST(${foodLogs.proteinG} AS NUMERIC) * CAST(${foodLogs.servings} AS NUMERIC)), 0)`.as('protein_g'),
+          carbs_g: sql<string>`COALESCE(SUM(CAST(${foodLogs.carbsG} AS NUMERIC) * CAST(${foodLogs.servings} AS NUMERIC)), 0)`.as('carbs_g'),
+          fat_g: sql<string>`COALESCE(SUM(CAST(${foodLogs.fatG} AS NUMERIC) * CAST(${foodLogs.servings} AS NUMERIC)), 0)`.as('fat_g'),
+        })
+        .from(foodLogs)
+        .where(
+          and(
+            eq(foodLogs.userId, ctx.userId),
+            gte(foodLogs.loggedAt, new Date(start)),
+            lte(foodLogs.loggedAt, new Date(end)),
+          ),
+        )
+        .groupBy(sql`DATE(${foodLogs.loggedAt})`)
+        .orderBy(sql`DATE(${foodLogs.loggedAt})`);
+
+      return rows.map((row) => ({
+        date: row.date,
+        calories: Math.round(Number(row.calories)),
+        protein_g: Math.round(Number(row.protein_g) * 10) / 10,
+        carbs_g: Math.round(Number(row.carbs_g) * 10) / 10,
+        fat_g: Math.round(Number(row.fat_g) * 10) / 10,
+      }));
     }),
 });

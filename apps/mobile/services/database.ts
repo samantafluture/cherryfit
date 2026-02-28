@@ -78,6 +78,23 @@ async function initializeDatabase(database: SQLite.SQLiteDatabase): Promise<void
     CREATE INDEX IF NOT EXISTS idx_food_logs_synced ON food_logs(synced);
     CREATE INDEX IF NOT EXISTS idx_food_database_barcode ON food_database(barcode);
     CREATE INDEX IF NOT EXISTS idx_food_database_use_count ON food_database(use_count DESC);
+
+    CREATE TABLE IF NOT EXISTS health_metrics (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001',
+      metric_type TEXT NOT NULL CHECK (metric_type IN (
+        'steps', 'sleep_minutes', 'heart_rate_resting', 'heart_rate_avg',
+        'active_minutes', 'calories_burned', 'weight_kg', 'body_fat_percent'
+      )),
+      value REAL NOT NULL,
+      recorded_at TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT 'health_connect',
+      synced INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_health_metrics_type_date ON health_metrics(metric_type, recorded_at);
+    CREATE INDEX IF NOT EXISTS idx_health_metrics_synced ON health_metrics(synced);
   `);
 }
 

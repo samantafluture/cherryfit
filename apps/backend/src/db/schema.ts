@@ -149,6 +149,17 @@ export const aiInsights = pgTable('ai_insights', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const fitbitTokens = pgTable('fitbit_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull(),
+  accessToken: text('access_token').notNull(),
+  refreshToken: text('refresh_token').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  fitbitUserId: varchar('fitbit_user_id', { length: 100 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const dailyGoals = pgTable('daily_goals', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull(),

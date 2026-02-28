@@ -5,6 +5,7 @@ import { DashboardHeader } from '../../components/dashboard/DashboardHeader';
 import { CalorieRing } from '../../components/dashboard/CalorieRing';
 import { MacroCard } from '../../components/dashboard/MacroCard';
 import { SecondaryMacros } from '../../components/dashboard/SecondaryMacros';
+import { HealthCards } from '../../components/dashboard/HealthCards';
 import { MealCard } from '../../components/dashboard/MealCard';
 import { EmptyState } from '../../components/dashboard/EmptyState';
 import { FoodFAB } from '../../components/dashboard/FoodFAB';
@@ -94,6 +95,8 @@ export default function HomeScreen(): React.JSX.Element {
             target: goals?.sodium_mg ?? null,
           }}
         />
+
+        <HealthCards />
 
         <View style={styles.mealsSection}>
           <ThemedText variant="h2">Today&apos;s Meals</ThemedText>

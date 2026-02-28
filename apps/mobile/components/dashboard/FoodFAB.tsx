@@ -6,7 +6,7 @@ import {
   Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus, Camera, PenLine, RotateCcw, X } from 'lucide-react-native';
+import { Plus, Camera, ScanBarcode, PenLine, RotateCcw, X } from 'lucide-react-native';
 import { ThemedText } from '../ui/ThemedText';
 import { colors } from '../../theme/colors';
 import { spacing, radius } from '../../theme/spacing';
@@ -30,6 +30,12 @@ export function FoodFAB(): React.JSX.Element {
       enabled: true,
     },
     {
+      label: 'Scan Barcode',
+      icon: <ScanBarcode size={22} color={colors.text.primary} strokeWidth={1.5} />,
+      route: '/food/scan-barcode',
+      enabled: true,
+    },
+    {
       label: 'Quick Log',
       icon: <RotateCcw size={22} color={colors.text.primary} strokeWidth={1.5} />,
       route: '/food/quick-log',
@@ -46,7 +52,7 @@ export function FoodFAB(): React.JSX.Element {
   function handleOptionPress(option: FabOption): void {
     setIsOpen(false);
     if (option.route && option.enabled) {
-      router.push(option.route);
+      router.push(option.route as '/food/scan-label');
     }
   }
 
