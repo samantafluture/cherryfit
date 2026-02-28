@@ -307,6 +307,14 @@ export default function PhotoAiScreen(): React.JSX.Element {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {items.length === 0 && (
+            <View style={styles.emptyState}>
+              <ThemedText variant="body" color="muted" style={styles.emptyStateText}>
+                No food items. Add one manually or go back to take another photo.
+              </ThemedText>
+            </View>
+          )}
+
           {items.map((item, index) => (
             <FoodItemCard
               key={index}
@@ -593,6 +601,13 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
     paddingBottom: spacing.xl * 2,
+  },
+  emptyState: {
+    padding: spacing.xl,
+    alignItems: 'center',
+  },
+  emptyStateText: {
+    textAlign: 'center',
   },
   addItemButton: {
     flexDirection: 'row',

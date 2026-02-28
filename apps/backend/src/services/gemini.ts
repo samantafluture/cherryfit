@@ -35,6 +35,15 @@ const foodPhotoResultSchema = z.object({
 export type FoodPhotoItem = z.infer<typeof foodPhotoItemSchema>;
 export type FoodPhotoResult = z.infer<typeof foodPhotoResultSchema>;
 
+function stripMarkdownFences(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.startsWith('```')) {
+    const withoutStart = trimmed.replace(/^```(?:json)?\s*\n?/, '');
+    return withoutStart.replace(/\n?```\s*$/, '');
+  }
+  return trimmed;
+}
+
 export class GeminiService {
   private client: GoogleGenAI;
   private model: string;
@@ -79,7 +88,7 @@ All numeric values should be per single serving.`,
       throw new Error('No text response from Gemini');
     }
 
-    const parsed: unknown = JSON.parse(text);
+    const parsed: unknown = JSON.parse(stripMarkdownFences(text));
     return labelResultSchema.parse(parsed);
   }
 
@@ -130,7 +139,7 @@ Guidelines:
       throw new Error('No text response from Gemini');
     }
 
-    const parsed: unknown = JSON.parse(text);
+    const parsed: unknown = JSON.parse(stripMarkdownFences(text));
     return foodPhotoResultSchema.parse(parsed);
   }
 }
