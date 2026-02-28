@@ -34,7 +34,21 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
         requestPermissions: true,
       },
     ],
+    'expo-sqlite',
+    [
+      'expo-build-properties',
+      {
+        android: {
+          minSdkVersion: 26,
+        },
+      },
+    ],
   ],
+  extra: {
+    eas: {
+      projectId: '7846bb1a-a8f0-4ad4-abdd-fa520630df22',
+    },
+  },
   experiments: {
     typedRoutes: true,
   },

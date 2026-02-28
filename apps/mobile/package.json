@@ -5,9 +5,10 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
+    "android": "expo run:android",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@cherryfit/shared": "workspace:*",
@@ -17,21 +18,22 @@
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
     "expo": "~52.0.0",
+    "expo-build-properties": "~0.13.3",
     "expo-camera": "~16.0.0",
     "expo-constants": "~17.0.0",
     "expo-crypto": "~14.0.0",
-    "expo-dev-client": "^55.0.10",
+    "expo-dev-client": "~5.0.20",
     "expo-file-system": "~18.0.0",
     "expo-font": "~13.0.0",
     "expo-image-picker": "~16.0.0",
     "expo-linking": "~7.0.0",
     "expo-router": "~4.0.0",
-    "expo-sqlite": "~15.0.0",
+    "expo-sqlite": "~15.1.4",
     "expo-status-bar": "~2.0.0",
     "lucide-react-native": "^0.460.0",
     "react": "18.3.1",
-    "react-dom": "^19.2.4",
-    "react-native": "0.76.7",
+    "react-dom": "^18.3.1",
+    "react-native": "0.76.9",
     "react-native-gesture-handler": "~2.20.0",
     "react-native-gifted-charts": "^1.4.74",
     "react-native-health-connect": "^3.5.0",
@@ -40,7 +42,7 @@
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
     "react-native-svg": "~15.8.0",
-    "react-native-web": "^0.21.2",
+    "react-native-web": "^0.19.13",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

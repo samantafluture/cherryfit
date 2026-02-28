@@ -30,7 +30,7 @@
       "es5-ext"
     ],
     "overrides": {
-      "tar": ">=7.5.8"
+      "@expo/config-plugins": "~9.0.0"
     }
   }
 }

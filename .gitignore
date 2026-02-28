@@ -10,6 +10,8 @@ build/
 
 # Expo
 .expo/
+apps/mobile/android/
+apps/mobile/ios/
 *.jks
 *.p8
 *.p12
