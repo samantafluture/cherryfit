@@ -6,7 +6,7 @@ import {
   Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus, Camera, ScanBarcode, PenLine, RotateCcw, X } from 'lucide-react-native';
+import { Plus, Camera, ScanBarcode, PenLine, RotateCcw, X, UtensilsCrossed } from 'lucide-react-native';
 import { ThemedText } from '../ui/ThemedText';
 import { colors } from '../../theme/colors';
 import { spacing, radius } from '../../theme/spacing';
@@ -23,6 +23,12 @@ export function FoodFAB(): React.JSX.Element {
   const router = useRouter();
 
   const options: FabOption[] = [
+    {
+      label: 'Take Photo',
+      icon: <UtensilsCrossed size={22} color={colors.text.primary} strokeWidth={1.5} />,
+      route: '/food/photo-ai',
+      enabled: true,
+    },
     {
       label: 'Scan Label',
       icon: <Camera size={22} color={colors.text.primary} strokeWidth={1.5} />,
