@@ -20,6 +20,16 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#0D0D11',
     },
     package: 'dev.cherryfit.app',
+    permissions: [
+      'android.permission.CAMERA',
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.READ_MEDIA_IMAGES',
+      'android.permission.health.READ_STEPS',
+      'android.permission.health.READ_SLEEP',
+      'android.permission.health.READ_HEART_RATE',
+      'android.permission.health.READ_ACTIVE_CALORIES_BURNED',
+      'android.permission.health.READ_EXERCISE',
+    ],
   },
   web: {
     bundler: 'metro',
@@ -28,6 +38,8 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-font',
     'expo-dev-client',
+    'expo-camera',
+    'expo-image-picker',
     [
       'react-native-health-connect',
       {
