@@ -108,23 +108,34 @@ export default function PhotoAiScreen(): React.JSX.Element {
   }, []);
 
   const takePhoto = useCallback(async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Camera access is required to take food photos.');
-      return;
-    }
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Camera access is required to take food photos.');
+        return;
+      }
 
-    const picked = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      quality: 0.8,
-    });
+      const picked = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        quality: 0.8,
+      });
 
-    if (!picked.canceled && picked.assets[0]) {
-      await processImage(picked.assets[0].uri);
+      if (!picked.canceled && picked.assets[0]) {
+        await processImage(picked.assets[0].uri);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      Alert.alert('Camera Error', `Could not open camera: ${message}`);
     }
   }, [processImage]);
 
   const pickFromGallery = useCallback(async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Gallery access is required to pick food photos.');
+      return;
+    }
+
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.8,

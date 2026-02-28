@@ -28,6 +28,8 @@ const PERMISSIONS = [
   { accessType: 'read' as const, recordType: 'ExerciseSession' as const },
 ];
 
+let initialized = false;
+
 export async function isHealthConnectAvailable(): Promise<boolean> {
   try {
     const status = await getSdkStatus();
@@ -38,8 +40,11 @@ export async function isHealthConnectAvailable(): Promise<boolean> {
 }
 
 export async function initializeHealthConnect(): Promise<boolean> {
+  if (initialized) return true;
   try {
-    return await initialize();
+    const result = await initialize();
+    initialized = result;
+    return result;
   } catch {
     return false;
   }
@@ -47,6 +52,8 @@ export async function initializeHealthConnect(): Promise<boolean> {
 
 export async function requestPermissions(): Promise<boolean> {
   try {
+    // Safety net: ensure initialized before requesting permissions
+    await initializeHealthConnect();
     const granted = await requestPermission(PERMISSIONS);
     return granted.length > 0;
   } catch {

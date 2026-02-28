@@ -2,7 +2,7 @@ import { View, ScrollView, Pressable, StyleSheet, ActivityIndicator, Linking, Al
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { Target, ChevronRight, Activity, RefreshCw, Unlink } from 'lucide-react-native';
+import { Target, ChevronRight, Activity, RefreshCw, Unlink, Bug } from 'lucide-react-native';
 import { ThemedText } from '../../components/ui/ThemedText';
 import { Card } from '../../components/ui/Card';
 import { useHealthConnect } from '../../hooks/useHealthConnect';
@@ -232,6 +232,25 @@ export default function ProfileScreen(): React.JSX.Element {
             )}
           </View>
         </Card>
+
+        {/* Debug */}
+        {__DEV__ && (
+          <Card>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => router.push('/debug')}
+            >
+              <Bug size={22} color={colors.accent.yellow} strokeWidth={1.5} />
+              <View style={styles.menuItemText}>
+                <ThemedText variant="body">Debug</ThemedText>
+                <ThemedText variant="caption" color="secondary">
+                  Diagnostics for camera, Health Connect, backend
+                </ThemedText>
+              </View>
+              <ChevronRight size={20} color={colors.text.muted} strokeWidth={1.5} />
+            </Pressable>
+          </Card>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

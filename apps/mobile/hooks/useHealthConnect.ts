@@ -29,6 +29,21 @@ function isExpoGo(): boolean {
   return Constants.appOwnership === 'expo';
 }
 
+// Eagerly require and initialize Health Connect at module scope (during JS bundle
+// evaluation, which happens inside Activity.onCreate). This ensures the library's
+// ActivityResultLauncher is registered before the Activity is fully created — the
+// requirement that caused the "lateinit property requestPermission not initialized" crash.
+let earlyService: HealthConnectService | null = null;
+if (Platform.OS === 'android' && !isExpoGo()) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    earlyService = require('../services/healthConnect') as HealthConnectService;
+    void earlyService.initializeHealthConnect();
+  } catch {
+    // Native module not linked — will fall back to mock
+  }
+}
+
 export function useHealthConnect(): HealthConnectState {
   const [isAvailable, setIsAvailable] = useState(false);
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -38,23 +53,20 @@ export function useHealthConnect(): HealthConnectState {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const realServiceRef = useRef<HealthConnectService | null>(null);
 
-  // Check availability on mount
+  // Check availability on mount — uses the module-scope earlyService
   useEffect(() => {
     async function checkAvailability(): Promise<void> {
-      if (Platform.OS !== 'android' || isExpoGo()) {
+      if (!earlyService) {
         setIsAvailable(false);
         return;
       }
 
       try {
-        // Only require the real service in dev builds
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const real = require('../services/healthConnect') as HealthConnectService;
-        realServiceRef.current = real;
-        const available = await real.isHealthConnectAvailable();
+        realServiceRef.current = earlyService;
+        const available = await earlyService.isHealthConnectAvailable();
         setIsAvailable(available);
         if (available) {
-          await real.initializeHealthConnect();
+          await earlyService.initializeHealthConnect();
         }
       } catch {
         setIsAvailable(false);
