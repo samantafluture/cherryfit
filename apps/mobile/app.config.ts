@@ -24,7 +24,17 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
   web: {
     bundler: 'metro',
   },
-  plugins: ['expo-router', 'expo-font'],
+  plugins: [
+    'expo-router',
+    'expo-font',
+    'expo-dev-client',
+    [
+      'react-native-health-connect',
+      {
+        requestPermissions: true,
+      },
+    ],
+  ],
   experiments: {
     typedRoutes: true,
   },

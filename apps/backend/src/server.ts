@@ -18,6 +18,19 @@ app.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };
 });
 
+// Fitbit OAuth callback — redirects to mobile deep link with auth code
+app.get('/api/fitbit/callback', async (request, reply) => {
+  const { code, state } = request.query as { code?: string; state?: string };
+
+  if (!code) {
+    return reply.status(400).send({ error: 'Missing authorization code' });
+  }
+
+  // Redirect to the mobile app with the code via deep link
+  const deepLink = `cherryfit://fitbit-callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state ?? '')}`;
+  return reply.redirect(deepLink);
+});
+
 app.register(fastifyTRPCPlugin, {
   prefix: '/trpc',
   trpcOptions: {

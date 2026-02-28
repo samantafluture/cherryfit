@@ -5,6 +5,6 @@ export default defineConfig({
   out: './src/db/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env['DATABASE_URL'] ?? 'postgresql://cherryfit:cherryfit@localhost:5432/cherryfit',
+    url: process.env['DATABASE_URL'] ?? 'postgresql://cherryfit:cherryfit@localhost:5433/cherryfit',
   },
 });
