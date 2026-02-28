@@ -371,13 +371,18 @@ Tasks 1.1–1.9: Local DB, dashboard, FAB, manual entry, label OCR, quick log, g
 ### Phase 2: Wearable Integration + Barcode
 Tasks 2.1–2.6: Health Connect, Fitbit cards, Fitbit write-back, barcode scanning, trend charts, polish
 
-### Phase 3: Workouts + AI Food Photos
-Tasks 3.1–3.7: Exercise DB, templates, active session, overload charts, AI photos, restaurant search, polish
+### Phase 3: AI Food Photo (MVP scope)
+Task 3.5: AI food photo recognition (Gemini vision → identify items → editable review → save)
+Task 3.7: Polish + verification
 
-### Phase 4: Blood Tests + AI Insights
-Tasks 4.1–4.5: Blood test upload, blood test charts, AI insights engine, data export, v1.0.0 prep
-
-See the Implementation Plan document for full task details, dependencies, and hour estimates.
+### Deferred to Post-MVP
+The following are deferred until after MVP release:
+- **Workouts:** Exercise DB (3.1), Templates (3.2), Active Session (3.3), Progressive Overload Charts (3.4)
+- **Restaurant Food Search** (3.6)
+- **Blood Tests:** Upload (4.1), Charts (4.2)
+- **AI Insights Engine** (4.3)
+- **Data Export** (4.4)
+- **v1.0.0 Prep** (4.5)
 
 ## Quick Reference
 

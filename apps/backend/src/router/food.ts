@@ -147,6 +147,24 @@ export const foodRouter = router({
       return gemini.scanNutritionLabel(input.image, input.mediaType);
     }),
 
+  analyzePhoto: publicProcedure
+    .input(
+      z.object({
+        image: z.string(),
+        mediaType: z.string().default('image/jpeg'),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const apiKey = process.env['GEMINI_API_KEY'];
+      if (!apiKey) {
+        throw new Error('GEMINI_API_KEY not configured');
+      }
+
+      const model = process.env['GEMINI_MODEL'] ?? 'gemini-2.5-flash';
+      const gemini = new GeminiService(apiKey, model);
+      return gemini.analyzeFoodPhoto(input.image, input.mediaType);
+    }),
+
   lookupBarcode: publicProcedure
     .input(z.object({ barcode: z.string().min(8).max(14) }))
     .query(async ({ input }) => {
