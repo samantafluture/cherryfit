@@ -6,7 +6,7 @@ Personal health management Android app extending the Fitbit ecosystem with intel
 
 - **Mobile:** React Native (Expo SDK 52) + Expo Router + TypeScript
 - **Backend:** Fastify + tRPC + Drizzle ORM + PostgreSQL
-- **AI:** Anthropic Claude API (vision + text)
+- **AI:** Google Gemini API (vision + text)
 - **Shared:** Zod schemas + TypeScript types
 
 ## Quick Start

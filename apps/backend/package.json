@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@google/genai": "^1.43.0",
     "@cherryfit/shared": "workspace:*",
     "@trpc/server": "^10.45.0",
     "dotenv": "^16.4.0",
